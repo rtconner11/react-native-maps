@@ -502,21 +502,11 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
       AirMapUrlTile urlTileView = (AirMapUrlTile) child;
       urlTileView.addToMap(map);
       features.add(index, urlTileView);
-    } else if (child instanceof AirMapLocalTile) {
-      AirMapLocalTile localTileView = (AirMapLocalTile) child;
-      localTileView.addToMap(map);
-      features.add(index, localTileView);
-    } else if (child instanceof AirMapOverlay) {
-      AirMapOverlay overlayView = (AirMapOverlay) child;
-      overlayView.addToMap(map);
-      features.add(index, overlayView);
-    } else if (child instanceof ViewGroup) {
+    } else {
       ViewGroup children = (ViewGroup) child;
       for (int i = 0; i < children.getChildCount(); i++) {
         addFeature(children.getChildAt(i), index);
       }
-    } else {
-      addView(child, index);
     }
   }
 
@@ -576,35 +566,36 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
   }
 
   public void animateToRegion(LatLngBounds bounds, int duration) {
-    if (map == null) return;
-    map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 0), duration, null);
+    if (map != null) {
+      map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 0), duration, null);
+    }
   }
 
   public void animateToViewingAngle(float angle, int duration) {
-    if (map == null) return;
-
-    CameraPosition cameraPosition = new CameraPosition.Builder(map.getCameraPosition())
-      .tilt(angle)
-      .build();
-    map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), duration, null);
+    if (map != null) {
+      CameraPosition cameraPosition = new CameraPosition.Builder(map.getCameraPosition())
+          .tilt(angle)
+          .build();
+      map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), duration, null);
+    }
   }
 
   public void animateToBearing(float bearing, int duration) {
-    if (map == null) return;
-    CameraPosition cameraPosition = new CameraPosition.Builder(map.getCameraPosition())
-        .bearing(bearing)
-        .build();
-    map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), duration, null);
+    if (map != null) {
+      CameraPosition cameraPosition = new CameraPosition.Builder(map.getCameraPosition())
+          .bearing(bearing)
+          .build();
+      map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), duration, null);
+    }
   }
 
   public void animateToCoordinate(LatLng coordinate, int duration) {
-    if (map == null) return;
-    map.animateCamera(CameraUpdateFactory.newLatLng(coordinate), duration, null);
+    if (map != null) {
+      map.animateCamera(CameraUpdateFactory.newLatLng(coordinate), duration, null);
+    }
   }
 
   public void fitToElements(boolean animated) {
-    if (map == null) return;
-
     LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
     boolean addedPosition = false;
@@ -629,8 +620,6 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
   }
 
   public void fitToSuppliedMarkers(ReadableArray markerIDsArray, boolean animated) {
-    if (map == null) return;
-
     LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
     String[] markerIDs = new String[markerIDsArray.size()];
@@ -666,8 +655,6 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
 
   public void fitToCoordinates(ReadableArray coordinatesArray, ReadableMap edgePadding,
       boolean animated) {
-    if (map == null) return;
-
     LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
     for (int i = 0; i < coordinatesArray.size(); i++) {
@@ -692,24 +679,6 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
     }
     map.setPadding(0, 0, 0,
         0); // Without this, the Google logo is moved up by the value of edgePadding.bottom
-  }
-
-  public void setMapBoundaries(ReadableMap northEast, ReadableMap southWest) {
-    if (map == null) return;
-
-    LatLngBounds.Builder builder = new LatLngBounds.Builder();
-
-    Double latNE = northEast.getDouble("latitude");
-    Double lngNE = northEast.getDouble("longitude");
-    builder.include(new LatLng(latNE, lngNE));
-
-    Double latSW = southWest.getDouble("latitude");
-    Double lngSW = southWest.getDouble("longitude");
-    builder.include(new LatLng(latSW, lngSW));
-
-    LatLngBounds bounds = builder.build();
-
-    map.setLatLngBoundsForCameraTarget(bounds);
   }
 
   // InfoWindowAdapter interface
